@@ -1,20 +1,16 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
+
 package com.mycompany.p2proyecto_estructuradatos;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
-/**
- *
- * @author jenni
- */
+
 public class RegistroNotasJfr extends javax.swing.JFrame {
-
-    /**
-     * Creates new form RegistroNotasJfr
-     */
+    private Grafo grafo;
+  
     public RegistroNotasJfr() {
         initComponents();
         nombreEsTxt.setOpaque(false); 
@@ -25,6 +21,8 @@ public class RegistroNotasJfr extends javax.swing.JFrame {
         notaP2Txt.setBackground(new Color(0, 0, 0, 0));
         notaP3Txt.setOpaque(false); 
         notaP3Txt.setBackground(new Color(0, 0, 0, 0));
+        
+        grafo = new Grafo();
     }
 
     /**
@@ -83,6 +81,11 @@ public class RegistroNotasJfr extends javax.swing.JFrame {
         getContentPane().add(notaP3Txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(294, 500, 100, 30));
 
         RegistrarAlumnoBtt.setText("registrar");
+        RegistrarAlumnoBtt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                RegistrarAlumnoBttActionPerformed(evt);
+            }
+        });
         getContentPane().add(RegistrarAlumnoBtt, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 570, 300, 40));
 
         borrarCamposBtt.setText("jButton1");
@@ -94,13 +97,23 @@ public class RegistroNotasJfr extends javax.swing.JFrame {
         getContentPane().add(borrarCamposBtt, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 633, 40, 40));
 
         ordenarListaBtt.setText("jButton1");
-        getContentPane().add(ordenarListaBtt, new org.netbeans.lib.awtextra.AbsoluteConstraints(1030, 390, 50, 40));
+        ordenarListaBtt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ordenarListaBttActionPerformed(evt);
+            }
+        });
+        getContentPane().add(ordenarListaBtt, new org.netbeans.lib.awtextra.AbsoluteConstraints(1040, 390, 50, 40));
 
         ordenarCalificacionesBtt.setText("jButton1");
-        getContentPane().add(ordenarCalificacionesBtt, new org.netbeans.lib.awtextra.AbsoluteConstraints(1040, 480, 50, 40));
+        ordenarCalificacionesBtt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ordenarCalificacionesBttActionPerformed(evt);
+            }
+        });
+        getContentPane().add(ordenarCalificacionesBtt, new org.netbeans.lib.awtextra.AbsoluteConstraints(1030, 480, 50, 40));
 
         buscarAlumno.setText("jButton1");
-        getContentPane().add(buscarAlumno, new org.netbeans.lib.awtextra.AbsoluteConstraints(1035, 300, 50, 40));
+        getContentPane().add(buscarAlumno, new org.netbeans.lib.awtextra.AbsoluteConstraints(1040, 300, 50, 40));
 
         listaEstudiantesTb.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -138,6 +151,103 @@ public class RegistroNotasJfr extends javax.swing.JFrame {
         notaP3Txt.setText("");
     }//GEN-LAST:event_borrarCamposBttActionPerformed
 
+    private void RegistrarAlumnoBttActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RegistrarAlumnoBttActionPerformed
+       String nombre = nombreEsTxt.getText();
+           if (!esNombreValido(nombre)) {
+            JOptionPane.showMessageDialog(this, "El nombre debe contener solo letras y tener exactamente cuatro palabras.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        
+        try {
+            double nota1 = Double.parseDouble(notaP1Txt.getText());
+            double nota2 = Double.parseDouble(notaP2Txt.getText());
+            double nota3 = Double.parseDouble(notaP3Txt.getText());
+
+            if (!sonNotasValidas(nota1, nota2, nota3)) {
+                JOptionPane.showMessageDialog(this, "Las notas deben ser números entre 0 y 10.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            Estudiante estudiante = new Estudiante(nombre, nota1, nota2, nota3);
+            grafo.agregarEstudiante(estudiante);
+            actualizarTabla();
+            
+            nombreEsTxt.setText("");
+            notaP1Txt.setText("");
+            notaP2Txt.setText("");
+            notaP3Txt.setText("");
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Las notas deben ser números válidos.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_RegistrarAlumnoBttActionPerformed
+
+    private void ordenarListaBttActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ordenarListaBttActionPerformed
+        
+    }//GEN-LAST:event_ordenarListaBttActionPerformed
+
+    private void ordenarCalificacionesBttActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ordenarCalificacionesBttActionPerformed
+       List<Estudiante> estudiantes = new ArrayList<>(grafo.getEstudiantes().values());
+    int n = estudiantes.size();
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (estudiantes.get(j).getNotaFinal() < estudiantes.get(j + 1).getNotaFinal()) {
+                Estudiante temp = estudiantes.get(j);
+                estudiantes.set(j, estudiantes.get(j + 1));
+                estudiantes.set(j + 1, temp);
+            }
+        }
+    }
+    grafo.setEstudiantes(estudiantes);
+    actualizarTabla();
+    System.out.println("Estudiantes ordenados por nota máxima:");
+    for (Estudiante e : estudiantes) {
+        System.out.println(e.getNombre() + ": " + e.getNotaFinal());
+    }
+    }//GEN-LAST:event_ordenarCalificacionesBttActionPerformed
+
+     private boolean esNombreValido(String nombre) {
+        String[] palabras = nombre.split("\\s+");
+        if (palabras.length != 4) {
+            return false;
+        }
+        for (String palabra : palabras) {
+            if (!palabra.matches("[a-zA-Z]+")) {
+                return false;
+            }
+        }
+        return true;
+    }
+     
+    private boolean sonNotasValidas(double... notas) {
+        for (double nota : notas) {
+            if (nota < 0 || nota > 10) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+   private void actualizarTabla() {
+    DefaultTableModel model = (DefaultTableModel) listaEstudiantesTb.getModel();
+    model.setRowCount(0); // Limpiar tabla
+    System.out.println("Actualizando la tabla...");
+
+    for (Estudiante estudiante : grafo.getEstudiantes().values()) {
+        Object[] row = new Object[5];
+        row[0] = estudiante.getNombre();
+        row[1] = estudiante.getNota1();
+        row[2] = estudiante.getNota2();
+        row[3] = estudiante.getNota3();
+        row[4] = estudiante.getNotaFinal();
+        model.addRow(row);
+        System.out.println("Añadiendo estudiante a la tabla: " + estudiante.getNombre() + " - Nota Final: " + estudiante.getNotaFinal());
+    }
+
+    // Refrescar la tabla para asegurar que los cambios son visibles
+    model.fireTableDataChanged();
+    System.out.println("Tabla actualizada.");
+}
     /**
      * @param args the command line arguments
      */
