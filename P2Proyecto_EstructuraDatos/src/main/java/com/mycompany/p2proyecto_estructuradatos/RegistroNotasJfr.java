@@ -2,15 +2,23 @@
 package com.mycompany.p2proyecto_estructuradatos;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.SwingUtilities;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 
 
 public class RegistroNotasJfr extends javax.swing.JFrame {
-    private Grafo grafo;
-  
+    
+  private List<Estudiante> listaEstudiantes;
     public RegistroNotasJfr() {
         initComponents();
         nombreEsTxt.setOpaque(false); 
@@ -21,8 +29,35 @@ public class RegistroNotasJfr extends javax.swing.JFrame {
         notaP2Txt.setBackground(new Color(0, 0, 0, 0));
         notaP3Txt.setOpaque(false); 
         notaP3Txt.setBackground(new Color(0, 0, 0, 0));
-        
-        grafo = new Grafo();
+      listaEstudiantes = new ArrayList<>();
+      personalizarTabla();
+    }
+    
+    private void personalizarTabla() {
+        listaEstudiantesTb.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        listaEstudiantesTb.setRowHeight(30);
+        listaEstudiantesTb.setIntercellSpacing(new java.awt.Dimension(10, 10));
+        listaEstudiantesTb.setGridColor(new java.awt.Color(230, 230, 230));
+        listaEstudiantesTb.setShowGrid(true);
+        listaEstudiantesTb.setFillsViewportHeight(true);
+        listaEstudiantesTb.setOpaque(true); // Asegura que la tabla no sea transparente
+        listaEstudiantesTb.setBackground(new Color(255, 255, 255)); // Fondo blanco
+
+        JTableHeader header = listaEstudiantesTb.getTableHeader();
+        header.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        header.setBackground(new Color(60, 63, 65));
+        header.setForeground(new Color(255, 255, 255));
+        header.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, Color.GRAY));
+
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+        listaEstudiantesTb.setDefaultRenderer(Object.class, centerRenderer);
+
+        DefaultTableCellRenderer headerRenderer = (DefaultTableCellRenderer) listaEstudiantesTb.getTableHeader().getDefaultRenderer();
+        headerRenderer.setHorizontalAlignment(JLabel.CENTER);
+
+        jScrollPane1.getViewport().setOpaque(true); // Asegura que el viewport no sea transparente
+        jScrollPane1.getViewport().setBackground(new Color(255, 255, 255)); // Fondo blanco
     }
 
     /**
@@ -128,7 +163,7 @@ public class RegistroNotasJfr extends javax.swing.JFrame {
         ));
         jScrollPane1.setViewportView(listaEstudiantesTb);
 
-        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 90, 520, 560));
+        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 170, 520, 220));
 
         interfazGUI.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/registroInterfaz.png"))); // NOI18N
         getContentPane().add(interfazGUI, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1120, 670));
@@ -153,11 +188,10 @@ public class RegistroNotasJfr extends javax.swing.JFrame {
 
     private void RegistrarAlumnoBttActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RegistrarAlumnoBttActionPerformed
        String nombre = nombreEsTxt.getText();
-           if (!esNombreValido(nombre)) {
+        if (!esNombreValido(nombre)) {
             JOptionPane.showMessageDialog(this, "El nombre debe contener solo letras y tener exactamente cuatro palabras.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
         
         try {
             double nota1 = Double.parseDouble(notaP1Txt.getText());
@@ -169,8 +203,9 @@ public class RegistroNotasJfr extends javax.swing.JFrame {
                 return;
             }
 
+            double notaFinal = (nota1 + nota2 + nota3) / 3;
             Estudiante estudiante = new Estudiante(nombre, nota1, nota2, nota3);
-            grafo.agregarEstudiante(estudiante);
+            listaEstudiantes.add(estudiante);
             actualizarTabla();
             
             nombreEsTxt.setText("");
@@ -183,29 +218,74 @@ public class RegistroNotasJfr extends javax.swing.JFrame {
     }//GEN-LAST:event_RegistrarAlumnoBttActionPerformed
 
     private void ordenarListaBttActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ordenarListaBttActionPerformed
-        
+        ordenarAlfabeticamenteQuickSort();
     }//GEN-LAST:event_ordenarListaBttActionPerformed
+private void ordenarAlfabeticamenteQuickSort() {
+    quickSort(0, listaEstudiantes.size() - 1);
+    actualizarTabla();
+}
 
-    private void ordenarCalificacionesBttActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ordenarCalificacionesBttActionPerformed
-       List<Estudiante> estudiantes = new ArrayList<>(grafo.getEstudiantes().values());
-    int n = estudiantes.size();
-    for (int i = 0; i < n - 1; i++) {
-        for (int j = 0; j < n - i - 1; j++) {
-            if (estudiantes.get(j).getNotaFinal() < estudiantes.get(j + 1).getNotaFinal()) {
-                Estudiante temp = estudiantes.get(j);
-                estudiantes.set(j, estudiantes.get(j + 1));
-                estudiantes.set(j + 1, temp);
+private void quickSort(int low, int high) {
+    if (low < high) {
+        int pi = partition(low, high);
+        quickSort(low, pi - 1);
+        quickSort(pi + 1, high);
+    }
+}
+
+    private int partition(int low, int high) {
+        String pivot = listaEstudiantes.get(high).getNombre();
+        int i = (low - 1);
+        for (int j = low; j < high; j++) {
+            if (listaEstudiantes.get(j).getNombre().compareToIgnoreCase(pivot) < 0) {
+                i++;
+                Estudiante temp = listaEstudiantes.get(i);
+                listaEstudiantes.set(i, listaEstudiantes.get(j));
+                listaEstudiantes.set(j, temp);
             }
         }
+        Estudiante temp = listaEstudiantes.get(i + 1);
+        listaEstudiantes.set(i + 1, listaEstudiantes.get(high));
+        listaEstudiantes.set(high, temp);
+        return i + 1;
     }
-    grafo.setEstudiantes(estudiantes);
-    actualizarTabla();
-    System.out.println("Estudiantes ordenados por nota máxima:");
-    for (Estudiante e : estudiantes) {
-        System.out.println(e.getNombre() + ": " + e.getNotaFinal());
+
+
+        private void ordenarCalificacionesBurbuja() {
+           int n = listaEstudiantes.size();
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = 0; j < n - i - 1; j++) {
+                double notaFinal1 = listaEstudiantes.get(j).calcularNotaFinal();
+                double notaFinal2 = listaEstudiantes.get(j + 1).calcularNotaFinal();
+                if (notaFinal1 < notaFinal2) { // Cambiado a menor que para ordenar de mayor a menor
+                    Estudiante temp = listaEstudiantes.get(j);
+                    listaEstudiantes.set(j, listaEstudiantes.get(j + 1));
+                    listaEstudiantes.set(j + 1, temp);
+                }
+            }
+        }
+        actualizarTabla();
     }
+
+    
+    private void ordenarCalificacionesBttActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ordenarCalificacionesBttActionPerformed
+         ordenarCalificacionesBurbuja();
     }//GEN-LAST:event_ordenarCalificacionesBttActionPerformed
 
+   private void actualizarTabla() {
+    DefaultTableModel model = (DefaultTableModel) listaEstudiantesTb.getModel();
+    model.setRowCount(0); // Limpiar la tabla
+    for (Estudiante estudiante : listaEstudiantes) {
+        model.addRow(new Object[]{
+            estudiante.getNombre(),
+            estudiante.getNotaP1(),
+            estudiante.getNotaP2(),
+            estudiante.getNotaP3(),
+            estudiante.calcularNotaFinal()
+        });
+    }
+}
+    
      private boolean esNombreValido(String nombre) {
         String[] palabras = nombre.split("\\s+");
         if (palabras.length != 4) {
@@ -228,26 +308,7 @@ public class RegistroNotasJfr extends javax.swing.JFrame {
         return true;
     }
     
-   private void actualizarTabla() {
-    DefaultTableModel model = (DefaultTableModel) listaEstudiantesTb.getModel();
-    model.setRowCount(0); // Limpiar tabla
-    System.out.println("Actualizando la tabla...");
 
-    for (Estudiante estudiante : grafo.getEstudiantes().values()) {
-        Object[] row = new Object[5];
-        row[0] = estudiante.getNombre();
-        row[1] = estudiante.getNota1();
-        row[2] = estudiante.getNota2();
-        row[3] = estudiante.getNota3();
-        row[4] = estudiante.getNotaFinal();
-        model.addRow(row);
-        System.out.println("Añadiendo estudiante a la tabla: " + estudiante.getNombre() + " - Nota Final: " + estudiante.getNotaFinal());
-    }
-
-    // Refrescar la tabla para asegurar que los cambios son visibles
-    model.fireTableDataChanged();
-    System.out.println("Tabla actualizada.");
-}
     /**
      * @param args the command line arguments
      */

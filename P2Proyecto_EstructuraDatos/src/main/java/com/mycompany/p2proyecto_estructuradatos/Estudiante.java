@@ -3,58 +3,34 @@ package com.mycompany.p2proyecto_estructuradatos;
 
 public class Estudiante {
     private String nombre;
-    private double nota1;
-    private double nota2;
-    private double nota3;
-    private double notaFinal;
+    private double notaP1;
+    private double notaP2;
+    private double notaP3;
 
-    public Estudiante(String nombre, double nota1, double nota2, double nota3) {
+    public Estudiante(String nombre, double notaP1, double notaP2, double notaP3) {
         this.nombre = nombre;
-        this.nota1 = nota1;
-        this.nota2 = nota2;
-        this.nota3 = nota3;
-        this.notaFinal = (nota1 + nota2 + nota3) / 3;
+        this.notaP1 = notaP1;
+        this.notaP2 = notaP2;
+        this.notaP3 = notaP3;
     }
 
     public String getNombre() {
         return nombre;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public double getNotaP1() {
+        return notaP1;
     }
 
-    public double getNota1() {
-        return nota1;
+    public double getNotaP2() {
+        return notaP2;
     }
 
-    public void setNota1(double nota1) {
-        this.nota1 = nota1;
+    public double getNotaP3() {
+        return notaP3;
     }
 
-    public double getNota2() {
-        return nota2;
+    public double calcularNotaFinal() {
+        return (notaP1 + notaP2 + notaP3) / 3.0;
     }
-
-    public void setNota2(double nota2) {
-        this.nota2 = nota2;
-    }
-
-    public double getNota3() {
-        return nota3;
-    }
-
-    public void setNota3(double nota3) {
-        this.nota3 = nota3;
-    }
-
-    public double getNotaFinal() {
-        return notaFinal;
-    }
-
-    public void setNotaFinal(double notaFinal) {
-        this.notaFinal = notaFinal;
-    }
-    
-    
 }
